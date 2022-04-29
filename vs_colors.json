@@ -1,0 +1,27 @@
+[
+    {
+        "role_name": "very slightly red",
+        "color": "#ffcccc",
+        "color_tier": "vs"
+    },
+    {
+        "role_name": "very slightly orange",
+        "color": "#ffedcc",
+        "color_tier": "vs"
+    },
+    {
+        "role_name": "very slightly yellow",
+        "color": "#ffffcc",
+        "color_tier": "vs"
+    },
+    {
+        "role_name": "very slightly green",
+        "color": "#ccffcc",
+        "color_tier": "vs"
+    },
+    {
+        "role_name": "very slightly blue",
+        "color": "#ccccff",
+        "color_tier": "vs"
+    }
+]

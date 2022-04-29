@@ -1,0 +1,27 @@
+[
+    {
+        "role_name": "slightly red",
+        "color": "#ff6666",
+        "color_tier": "s"
+    },
+    {
+        "role_name": "slightly orange",
+        "color": "#ffc966",
+        "color_tier": "s"
+    },
+    {
+        "role_name": "slightly yellow",
+        "color": "#ffff66",
+        "color_tier": "s"
+    },
+    {
+        "role_name": "slightly green",
+        "color": "#66ff66",
+        "color_tier": "s"
+    },
+    {
+        "role_name": "slightly blue",
+        "color": "#6666ff",
+        "color_tier": "s"
+    }
+]
