@@ -99,13 +99,13 @@ module.exports = {
 
         const rewards = response.data
 
-        // if (rewards.length <= 0) {
-        //   interaction.reply('There are currently no pending redemptions!')
-        //   return
-        // }
+        if (rewards.length <= 0) {
+          interaction.reply('There are currently no pending redemptions!')
+          return
+        }
 
-        // This array will have all twitch users that redeemed the channel reward pushed into it
-        const allRewardNames = []
+        // This array will have all twitch userredemptions pushed into it
+        const allRewards = []
 
         const fulfillReward = async (rewardID, twitchClientID, twitchAccessToken) => {
           await fetch(
@@ -126,13 +126,19 @@ module.exports = {
 
         // looping over reward returned data
         for (let i = 0; i < rewards.length; i++) {
-          fulfillReward(rewards[i].id, process.env.TWITCHBOT_CLIENT_ID, process.env.TWITCHBOT_ACCESS_TOKEN)
-          allRewardNames.push(rewards[i].user_name.toLowerCase())
+          allRewards.push(rewards[i])
         }
 
-        // Checking if provided username matches with one of the names in the 'allRewardNames' array
-        // currentName returns the use rprovided name if it catches a match
-        const currentName = allRewardNames.find((element) => element == input.toLowerCase())
+        // result variable is destructuring and returning the object that contains the inputted name from the user
+        const result = allRewards.find(({ user_name }) => user_name == input.toLowerCase())
+
+        // If  TypeError: cannot find user_name of undefined 
+        if (typeof result === 'undefined') {
+          return interaction.reply(`The Twitch user **${input}** has not redeemed the channel reward!`)
+        }
+
+        const currentName = result.user_name
+        const currentRewardID = result.id
 
         if (currentName === input.toLowerCase()) {
           countDocuments(discordID)
@@ -140,12 +146,12 @@ module.exports = {
               return findOneUser(discordID)
             })
             .then(() => {
-              fulfillReward()
+              fulfillReward(currentRewardID, process.env.TWITCHBOT_CLIENT_ID, process.env.TWITCHBOT_ACCESS_TOKEN)
               vsEmbed()
             })
             .catch((err) => console.log(err))
           break
-        } else if (allRewardNames != input.toLowerCase()) {
+        } else if (currentName != input.toLowerCase()) {
           return interaction.reply(`The Twitch user **${input}** has not redeemed the channel reward!`)
         }
       } while (after != undefined)
