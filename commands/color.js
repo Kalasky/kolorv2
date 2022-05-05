@@ -98,51 +98,55 @@ module.exports = {
         after = response.pagination.cursor
 
         const rewards = response.data
-        console.log(rewards)
 
         // if (rewards.length <= 0) {
         //   interaction.reply('There are currently no pending redemptions!')
         //   return
         // }
 
+        // This array will have all twitch users that redeemed the channel reward pushed into it
+        const allRewardNames = []
+
+        const fulfillReward = async (rewardID, twitchClientID, twitchAccessToken) => {
+          await fetch(
+            `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=58606718&reward_id=08d5e2d9-ddd7-4082-bc78-39b06b35cd68&id=${rewardID}`,
+            {
+              method: 'PATCH',
+              headers: {
+                'client-Id': twitchClientID,
+                Authorization: `Bearer ${twitchAccessToken}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                status: 'FULFILLED',
+              }),
+            }
+          )
+        }
+
         // looping over reward returned data
         for (let i = 0; i < rewards.length; i++) {
-          async function fulfillReward() {
-            await fetch(
-              `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=58606718&reward_id=08d5e2d9-ddd7-4082-bc78-39b06b35cd68&id=${rewards[i].id}`,
-              {
-                method: 'PATCH',
-                headers: {
-                  'client-Id': process.env.TWITCHBOT_CLIENT_ID,
-                  Authorization: `Bearer ${process.env.TWITCHBOT_ACCESS_TOKEN}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  status: 'FULFILLED',
-                }),
-              }
-            )
-          }
+          fulfillReward(rewards[i].id, process.env.TWITCHBOT_CLIENT_ID, process.env.TWITCHBOT_ACCESS_TOKEN)
+          allRewardNames.push(rewards[i].user_name.toLowerCase())
+        }
 
-          const currentReward = rewards[i]
-          const currentRewardUsername = currentReward.user_name.toLowerCase()
-          const currentRewardTitle = currentReward.reward.title
+        // Checking if provided username matches with one of the names in the 'allRewardNames' array
+        // currentName returns the use rprovided name if it catches a match
+        const currentName = allRewardNames.find((element) => element == input.toLowerCase())
 
-          if (currentRewardUsername === input.toLowerCase() && currentRewardTitle == 'test creation3') {
-            countDocuments(discordID)
-              .then(() => {
-                return findOneUser(discordID)
-              })
-              .then(() => {
-                fulfillReward()
-                vsEmbed()
-                console.log('hey')
-              })
-              .catch((err) => console.log(err))
-            break
-          } else if (currentRewardUsername != input.toLowerCase()) {
-            return interaction.reply(`The Twitch user **${input}** has not redeemed the channel reward!`)
-          }
+        if (currentName === input.toLowerCase()) {
+          countDocuments(discordID)
+            .then(() => {
+              return findOneUser(discordID)
+            })
+            .then(() => {
+              fulfillReward()
+              vsEmbed()
+            })
+            .catch((err) => console.log(err))
+          break
+        } else if (allRewardNames != input.toLowerCase()) {
+          return interaction.reply(`The Twitch user **${input}** has not redeemed the channel reward!`)
         }
       } while (after != undefined)
     }
